@@ -187,11 +187,12 @@ def process_file_format(filename, filetype, gateway, selected_service, mk_list_n
 
     if not filetype:
         filetype = input(f"""
-{yellow('В каком формате сохранить файл?')}
+{yellow('В каком формате сохранить файл?')} 
 {green('win')} - route add {cyan('IP')} mask {net_mask} {cyan('GATEWAY')}
 {green('unix')} - ip route {cyan('IP')}/{subnet} {cyan('GATEWAY')}
 {green('keenetic')} - ip route {cyan('IP')}/{subnet} {cyan('GATEWAY GATEWAY_NAME')} auto !{comment(selected_service)}
 {green('cidr')} - {cyan('IP')}/{subnet}
+{green('skat')} - {cyan('IP')}/{subnet} 65525
 {green('mikrotik')} - /ip/firewall/address-list add list={cyan("LIST_NAME")} comment="{comment(selected_service)}" address={cyan("IP")}/{subnet}
 {green('ovpn')} - push "route {cyan('IP')} {net_mask}"
 {green('wireguard')} - {cyan('IP')}/{subnet}, {cyan('IP')}/{subnet}, и т.д...
@@ -216,6 +217,7 @@ def process_file_format(filename, filetype, gateway, selected_service, mk_list_n
         'unix': lambda ip: f"ip route {ip}/{subnet} {gateway}",
         'keenetic': lambda ip: f"ip route {ip}/{subnet} {ken_gateway} auto !{comment(selected_service)}",
         'cidr': lambda ip: f"{ip}/{subnet}",
+        'skat': lambda ip: f"{ip}/{subnet} 65525",
         'ovpn': lambda ip: f'push "route {ip} {net_mask}"',
         'mikrotik': lambda
             ip: f'/ip/firewall/address-list add list={mk_list_name} comment="{comment(selected_service)}" address={ip}/{subnet}',
@@ -238,6 +240,8 @@ def process_file_format(filename, filetype, gateway, selected_service, mk_list_n
             'unix': lambda ip: f"ip route {mix_formatter(ip)} {gateway}",
             'keenetic': lambda ip: f"ip route {mix_formatter(ip)} {ken_gateway} auto !{comment(selected_service)}",
             'cidr': lambda ip: f"{mix_formatter(ip)}",
+            'cidr': lambda ip: f"{ip}/{subnet}",
+            'skat': lambda ip: f"{ip}/{subnet} 65525",
             'ovpn': lambda ip: f'push "route {mix_formatter(ip)}"',
             'mikrotik': lambda ip: f'/ip/firewall/address-list add list={mk_list_name} comment="{comment(selected_service)}" address={mix_formatter(ip)}',
             'wireguard': lambda ip: f"{mix_formatter(ip)}"

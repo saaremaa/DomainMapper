@@ -69,7 +69,7 @@ def read_config(cfg_file):
             print(f"{Style.BRIGHT}Количество одновременных запросов к одному DNS серверу:{Style.RESET_ALL} {request_limit}")
             print(f"{Style.BRIGHT}Фильтрация IP-адресов Cloudflare:{Style.RESET_ALL} {'включена' if cloudflare in ['y', 'yes'] else 'вЫключена' if cloudflare in ['n', 'no'] else 'спросить у пользователя'}")
             print(f"{Style.BRIGHT}Агрегация IP-адресов:{Style.RESET_ALL} {'mix режим /24 (255.255.255.0) + /32 (255.255.255.255)' if subnet == 'mix' else 'до /16 подсети (255.255.0.0)' if subnet == '16' else 'до /24 подсети (255.255.255.0)' if subnet == '24' else 'вЫключена' if subnet in ['n', 'no'] else 'спросить у пользователя'}")
-            print(f"{Style.BRIGHT}Формат сохранения:{Style.RESET_ALL} {'только IP' if filetype == 'ip' else 'Linux route' if filetype == 'unix' else 'CIDR-нотация' if filetype == 'cidr' else 'Windows route' if filetype == 'win' else 'Mikrotik CLI' if filetype == 'mikrotik' else 'open vpn' if filetype == 'ovpn' else 'Keenetic CLI' if filetype == 'keenetic' else 'Wireguard' if filetype == 'wireguard' else 'спросить у пользователя'}")
+            print(f"{Style.BRIGHT}Формат сохранения:{Style.RESET_ALL} {'только IP' if filetype == 'ip' else 'Linux route' if filetype == 'unix' else 'skat  нотация' if filetype == 'skat' else 'cidr нотация' if filetype == 'cidr' else 'Windows route' if filetype == 'win' else 'Mikrotik CLI' if filetype == 'mikrotik' else 'open vpn' if filetype == 'ovpn' else 'Keenetic CLI' if filetype == 'keenetic' else 'Wireguard' if filetype == 'wireguard' else 'спросить у пользователя'}")
             if filetype in ['win', 'unix', '']:
                 print(f"{Style.BRIGHT}Шлюз/Имя интерфейса для Windows и Linux route:{Style.RESET_ALL} {gateway if gateway else 'спросить у пользователя'}")
             if filetype in ['keenetic', '']:
@@ -480,6 +480,7 @@ def process_file_format(filename, filetype, gateway, selected_service, mk_list_n
 {green('unix')} - ip route {cyan('IP')}/{subnet} {cyan('GATEWAY')}
 {green('keenetic')} - ip route {cyan('IP')}/{subnet} {cyan('GATEWAY GATEWAY_NAME')} auto !{comment(selected_service)}
 {green('cidr')} - {cyan('IP')}/{subnet}
+{green('skat')} - {cyan('IP')}/{subnet} 65525
 {green('mikrotik')} - /ip/firewall/address-list add list={cyan("LIST_NAME")}{f' comment="{comment(selected_service)}"' if mk_comment != "off" else ""} address={cyan("IP")}/{subnet}
 {green('ovpn')} - push "route {cyan('IP')} {net_mask}"
 {green('wireguard')} - {cyan('IP')}/{subnet}, {cyan('IP')}/{subnet}, и т.д...
@@ -504,6 +505,7 @@ def process_file_format(filename, filetype, gateway, selected_service, mk_list_n
         'unix': lambda ip: f"ip route {ip}/{subnet} {gateway}",
         'keenetic': lambda ip: f"ip route {ip}/{subnet} {ken_gateway} auto !{comment(selected_service)}",
         'cidr': lambda ip: f"{ip}/{subnet}",
+        'skat': lambda ip: f"{ip}/{subnet} 65525",
         'ovpn': lambda ip: f'push "route {ip} {net_mask}"',
         'mikrotik': lambda ip: f'/ip/firewall/address-list add list={mk_list_name}' + (f' comment="{comment(selected_service)}"' if mk_comment != "off" else "") + f' address={ip}/{subnet}',
         'wireguard': lambda ip: f"{ip}/{subnet}"
